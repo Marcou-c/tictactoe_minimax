@@ -8,9 +8,11 @@ export default function GamePage() {
   const [board, setBoard] = useState(initialBoard);
   const [isPlayerTurn, setIsPlayerTurn] = useState(true);
   const [winner, setWinner] = useState(null);
+  const[message, setMessage] = useState("Tu turno");
 
   const placeSound = new Audio("/sounds/place.mp3");
   const winSound = new Audio("/sounds/win.mp3");
+const loseSound = new Audio("/sounds/lose.mp3");
   const tieSound = new Audio("/sounds/tie.mp3");
 
   function handleClick(index) {
