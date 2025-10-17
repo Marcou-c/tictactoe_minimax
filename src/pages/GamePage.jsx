@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Square from "../components/Square";
+import { motion } from "framer-motion";
 
 const initialBoard = Array(9).fill(null);
 
@@ -43,26 +44,43 @@ export default function GamePage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-black text-white">
-      <h1 className="text-3xl mb-4 text-neon-green">
+    <div className="relative flex flex-col items-center justify-center h-screen bg-black font-['Press_Start_2P'] text-white overflow-hidden">
+      {/* Fondo arcade animado */}
+      <div className="absolute inset-0 bg-gradient-to-b from-gray-900 to-black">
+        <div className="absolute inset-0 bg-black bg-repeat opacity-20 animate-pulse"></div>
+      </div>
+
+      {/* Título */}
+      <motion.h1
+        className="text-3xl sm:text-4xl mb-6 z-10"
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 1 }}
+      >
         {winner ? `Ganador: ${winner}` : `Turno: ${isPlayerTurn ? "Tú" : "IA"}`}
-      </h1>
-      <div className="grid grid-cols-3 gap-4">
+      </motion.h1>
+
+      {/* Tablero */}
+      <div className="grid grid-cols-3 gap-6 z-10">
         {board.map((value, i) => (
           <Square key={i} value={value} onClick={() => handleClick(i)} />
         ))}
       </div>
+
+      {/* Botón reiniciar */}
       {winner && (
-        <button
-          className="mt-6 bg-neon-pink px-6 py-3 rounded-lg"
+        <motion.button
+          className="mt-6 px-8 py-3 rounded-xl border-2 border-white hover:bg-gray-700 text-white z-10"
           onClick={() => {
             setBoard(initialBoard);
             setWinner(null);
             setIsPlayerTurn(true);
           }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
         >
           Reiniciar
-        </button>
+        </motion.button>
       )}
     </div>
   );
