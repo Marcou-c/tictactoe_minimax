@@ -5,7 +5,7 @@ import devImg from "../assets/dev1.jpeg"; // tu avatar
 export default function About() {
   const navigate = useNavigate();
 
-  // Crear partículas sutiles en el fondo
+  // partículas sutiles en el fondo
   const particles = Array.from({ length: 40 }).map(() => ({
     id: Math.random(),
     x: Math.random() * 100,
@@ -35,7 +35,7 @@ export default function About() {
         />
       ))}
 
-      {/* Fondo sutil */}
+      {/* Fondo */}
       <div className="absolute inset-0 bg-black bg-repeat opacity-10"></div>
 
       <motion.div
@@ -104,7 +104,7 @@ export default function About() {
         </motion.button>
       </motion.div>
 
-      {/* Nombre y año */}
+      {/* el footer se puede decir jaja */}
       <p className="absolute bottom-4 text-xs sm:text-sm text-gray-400">
         © {new Date().getFullYear()} Marco Ugalde. Todos los derechos reservados.
       </p>

@@ -1,40 +1,41 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import Square from "../components/Square";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const initialBoard = Array(9).fill(null);
 
 export default function GamePage() {
+  const navigate = useNavigate();
   const [board, setBoard] = useState(initialBoard);
   const [isPlayerTurn, setIsPlayerTurn] = useState(true);
   const [winner, setWinner] = useState(null);
   const [message, setMessage] = useState("¡Tu turno!");
   const [particles, setParticles] = useState([]);
 
-  const placeSound = new Audio("/sounds/place.mp3");
-  const winSound = new Audio("/sounds/lose.mp3");
-  const loseSound = new Audio("/sounds/win.mp3");
-  const tieSound = new Audio("/sounds/tie.mp3");
+  const placeSound = useRef(new Audio("/sounds/place.mp3"));
+  const winSound = useRef(new Audio("/sounds/lose.mp3"));
+  const loseSound = useRef(new Audio("/sounds/win.mp3"));
+  const tieSound = useRef(new Audio("/sounds/tie.mp3"));
 
-  // Crear partículas para victoria/derrota
   const spawnParticles = (color) => {
     const newParticles = Array.from({ length: 30 }).map(() => ({
-      x: Math.random() * 100 - 50,
-      y: Math.random() * 100 - 50,
+      x: Math.random() * 200 - 100,
+      y: Math.random() * 200 - 100,
       color,
-      size: Math.random() * 6 + 4,
+      size: Math.random() * 8 + 4,
       id: Math.random(),
     }));
     setParticles(newParticles);
     setTimeout(() => setParticles([]), 1500);
   };
 
-  function handleClick(index) {
+  const handleClick = (index) => {
     if (board[index] || winner || !isPlayerTurn) return;
 
-    const newBoard = board.slice();
+    const newBoard = [...board];
     newBoard[index] = "X";
-    placeSound.play();
+    placeSound.current.play();
     setBoard(newBoard);
     setMessage("Turno IA...");
 
@@ -47,7 +48,7 @@ export default function GamePage() {
       const bestMove = findBestMove(newBoard);
       if (bestMove !== -1) {
         newBoard[bestMove] = "O";
-        placeSound.play();
+        placeSound.current.play();
       }
       setBoard(newBoard);
 
@@ -56,69 +57,66 @@ export default function GamePage() {
 
       setIsPlayerTurn(true);
       setMessage("¡Tu turno!");
-    }, 600);
-  }
+    }, 500);
+  };
 
-  function handleWinner(w) {
+  const handleWinner = (w) => {
     setWinner(w);
     if (w === "X") {
-      setMessage("¡Ganaste! :)");
-      winSound.play();
+      setMessage("¡Ganaste!");
+      winSound.current.play();
       spawnParticles("#00ff00");
     } else if (w === "O") {
-      setMessage("¡Perdiste! :(");
-      loseSound.play();
+      setMessage("¡Perdiste!");
+      loseSound.current.play();
       spawnParticles("#ff0000");
     } else {
-      setMessage("¡Empateee!");
-      tieSound.play();
+      setMessage("¡Empate!");
+      tieSound.current.play();
       spawnParticles("#ffff00");
     }
-  }
+  };
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen bg-black font-['Press_Start_2P'] text-white overflow-hidden p-4">
-      
-      {/* Fondo arcade responsive */}
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-900 to-black">
-        <div className="absolute inset-0 bg-black bg-repeat opacity-20 animate-pulse"></div>
-      </div>
-
-      {/* Mensaje dinámico */}
+    <div className="relative flex flex-col items-center justify-center min-h-screen bg-black text-white font-['Press_Start_2P'] overflow-hidden p-4">
       <motion.h1
         className="text-2xl sm:text-3xl md:text-4xl mb-6 z-10 text-center"
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 1 }}
+        transition={{ duration: 0.8 }}
       >
         {message}
       </motion.h1>
 
-      {/* Tablero responsive */}
       <div className="grid grid-cols-3 gap-4 sm:gap-6 md:gap-8 z-10">
         {board.map((value, i) => (
           <Square key={i} value={value} onClick={() => handleClick(i)} />
         ))}
       </div>
 
-      {/* Botón reiniciar */}
       {winner && (
-        <motion.button
-          className="mt-6 px-6 sm:px-8 py-2 sm:py-3 rounded-lg border-2 border-white hover:bg-gray-700 text-white z-10"
-          onClick={() => {
-            setBoard(initialBoard);
-            setWinner(null);
-            setIsPlayerTurn(true);
-            setMessage("¡Tu turno!");
-          }}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          Reiniciar
-        </motion.button>
+        <div className="flex flex-col sm:flex-row gap-4 mt-6 z-10">
+          <motion.button
+            className="px-6 py-3 rounded-lg border-2 border-white hover:bg-gray-700"
+            onClick={() => {
+              setBoard(initialBoard);
+              setWinner(null);
+              setIsPlayerTurn(true);
+              setMessage("¡Tu turno!");
+            }}
+          >
+            Reiniciar
+          </motion.button>
+
+          <motion.button
+            className="px-6 py-3 rounded-lg border-2 border-red-500 hover:bg-red-700 text-red-500"
+            onClick={() => navigate("/")}
+          >
+            Salir
+          </motion.button>
+        </div>
       )}
 
-      {/* Partículas */}
       {particles.map((p) => (
         <motion.div
           key={p.id}
@@ -131,7 +129,7 @@ export default function GamePage() {
             top: "50%",
           }}
           initial={{ x: 0, y: 0, opacity: 1 }}
-          animate={{ x: p.x * 5, y: p.y * 5, opacity: 0 }}
+          animate={{ x: p.x, y: p.y, opacity: 0 }}
           transition={{ duration: 1.5, ease: "easeOut" }}
         />
       ))}
