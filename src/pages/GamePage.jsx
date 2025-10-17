@@ -16,8 +16,8 @@ export default function GamePage() {
   const [particles, setParticles] = useState([]);
 
   const placeSound = new Audio("/sounds/place.mp3");
-  const winSound = new Audio("/sounds/lose.mp3");  
-  const loseSound = new Audio("/sounds/win.mp3");  
+  const winSound = new Audio("/sounds/lose.mp3");
+  const loseSound = new Audio("/sounds/win.mp3");
   const tieSound = new Audio("/sounds/tie.mp3");
 
   const spawnParticles = (color) => {
@@ -85,12 +85,11 @@ export default function GamePage() {
 
       {/* Mensaje */}
       <motion.h1
-        className={`text-2xl sm:text-3xl md:text-4xl mt-4 z-10 text-center ${
-          winner === "X" ? "text-green-400" :
-          winner === "O" ? "text-red-500" :
-          winner === "Empate" ? "text-yellow-400" : "text-white"
-        }`}
-        initial={{ y: -50, opacity: 0 }}
+        className={`text-2xl sm:text-3xl md:text-4xl mt-20 sm:mt-10 md:mt-8 z-10 text-center ${winner === "X" ? "text-green-400" :
+            winner === "O" ? "text-red-500" :
+              winner === "Empate" ? "text-yellow-400" : "text-white"
+          }`}
+        initial={{ y: -30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8, type: "spring", stiffness: 120 }}
       >
@@ -162,18 +161,18 @@ export default function GamePage() {
   );
 }
 
-// ---------------------- LÓGICA MINIMAX ----------------------
+// ---------------------- LÓGICA DEL MINIMAX ----------------------
 
 function checkWinner(board) {
   const lines = [
-    [0,1,2],[3,4,5],[6,7,8],
-    [0,3,6],[1,4,7],[2,5,8],
-    [0,4,8],[2,4,6]
+    [0, 1, 2], [3, 4, 5], [6, 7, 8],
+    [0, 3, 6], [1, 4, 7], [2, 5, 8],
+    [0, 4, 8], [2, 4, 6]
   ];
 
-  for (let [a,b,c] of lines) {
+  for (let [a, b, c] of lines) {
     if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-      return { player: board[a], line: [a,b,c] };
+      return { player: board[a], line: [a, b, c] };
     }
   }
   return board.includes(null) ? null : { player: "Empate" };
@@ -205,7 +204,7 @@ function minimax(board, depth, isMax) {
     for (let i = 0; i < 9; i++) {
       if (!board[i]) {
         board[i] = "O";
-        bestScore = Math.max(bestScore, minimax(board, depth+1, false));
+        bestScore = Math.max(bestScore, minimax(board, depth + 1, false));
         board[i] = null;
       }
     }
@@ -215,7 +214,7 @@ function minimax(board, depth, isMax) {
     for (let i = 0; i < 9; i++) {
       if (!board[i]) {
         board[i] = "X";
-        bestScore = Math.min(bestScore, minimax(board, depth+1, true));
+        bestScore = Math.min(bestScore, minimax(board, depth + 1, true));
         board[i] = null;
       }
     }
