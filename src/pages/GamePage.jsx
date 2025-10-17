@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Square from "../components/Square";
 import { motion } from "framer-motion";
 
@@ -8,11 +8,11 @@ export default function GamePage() {
   const [board, setBoard] = useState(initialBoard);
   const [isPlayerTurn, setIsPlayerTurn] = useState(true);
   const [winner, setWinner] = useState(null);
-  const[message, setMessage] = useState("Tu turno");
+  const [message, setMessage] = useState("Tu turno");
 
   const placeSound = new Audio("/sounds/place.mp3");
   const winSound = new Audio("/sounds/win.mp3");
-const loseSound = new Audio("/sounds/lose.mp3");
+  const loseSound = new Audio("/sounds/lose.mp3");
   const tieSound = new Audio("/sounds/tie.mp3");
 
   function handleClick(index) {
@@ -22,10 +22,13 @@ const loseSound = new Audio("/sounds/lose.mp3");
     newBoard[index] = "X";
     placeSound.play();
     setBoard(newBoard);
+
     const check = checkWinner(newBoard);
     if (check) return handleWinner(check);
 
     setIsPlayerTurn(false);
+    setMessage("Turno IA");
+
     setTimeout(() => {
       const bestMove = findBestMove(newBoard);
       if (bestMove !== -1) {
@@ -33,33 +36,44 @@ const loseSound = new Audio("/sounds/lose.mp3");
         placeSound.play();
       }
       setBoard(newBoard);
+
       const checkAI = checkWinner(newBoard);
       if (checkAI) return handleWinner(checkAI);
+
       setIsPlayerTurn(true);
-    }, 500);
+      setMessage("Tu turno");
+    }, 600);
   }
 
   function handleWinner(w) {
     setWinner(w);
-    if (w === "Empate") tieSound.play();
-    else winSound.play();
+    if (w === "X") {
+      setMessage("¡Ganaste! 🎉");
+      winSound.play();
+    } else if (w === "O") {
+      setMessage("¡Perdiste! 😢");
+      loseSound.play();
+    } else {
+      setMessage("¡Empate! 🤝");
+      tieSound.play();
+    }
   }
 
   return (
     <div className="relative flex flex-col items-center justify-center h-screen bg-black font-['Press_Start_2P'] text-white overflow-hidden">
-      {/* Fondo arcade animado */}
+      {/* Fondo arcade */}
       <div className="absolute inset-0 bg-gradient-to-b from-gray-900 to-black">
         <div className="absolute inset-0 bg-black bg-repeat opacity-20 animate-pulse"></div>
       </div>
 
-      {/* Título */}
+      {/* Mensaje dinámico */}
       <motion.h1
         className="text-3xl sm:text-4xl mb-6 z-10"
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 1 }}
       >
-        {winner ? `Ganador: ${winner}` : `Turno: ${isPlayerTurn ? "Tú" : "IA"}`}
+        {message}
       </motion.h1>
 
       {/* Tablero */}
@@ -77,6 +91,7 @@ const loseSound = new Audio("/sounds/lose.mp3");
             setBoard(initialBoard);
             setWinner(null);
             setIsPlayerTurn(true);
+            setMessage("Tu turno");
           }}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
