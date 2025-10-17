@@ -1,8 +1,8 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import Square from "../components/Square";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-
+import Footer from "../components/Footer"; 
 const initialBoard = Array(9).fill(null);
 
 export default function GamePage() {
@@ -13,13 +13,14 @@ export default function GamePage() {
   const [message, setMessage] = useState("¡Tu turno!");
   const [particles, setParticles] = useState([]);
 
-  const placeSound = useRef(new Audio("/sounds/place.mp3"));
-  const winSound = useRef(new Audio("/sounds/lose.mp3"));
-  const loseSound = useRef(new Audio("/sounds/win.mp3"));
-  const tieSound = useRef(new Audio("/sounds/tie.mp3"));
+  const placeSound = new Audio("/sounds/place.mp3");
+  const winSound = new Audio("/sounds/lose.mp3");  
+  const loseSound = new Audio("/sounds/win.mp3");  
+  const tieSound = new Audio("/sounds/tie.mp3");
 
+  // Partículas retro estilo arcade
   const spawnParticles = (color) => {
-    const newParticles = Array.from({ length: 30 }).map(() => ({
+    const newParticles = Array.from({ length: 50 }).map(() => ({
       x: Math.random() * 200 - 100,
       y: Math.random() * 200 - 100,
       color,
@@ -27,15 +28,15 @@ export default function GamePage() {
       id: Math.random(),
     }));
     setParticles(newParticles);
-    setTimeout(() => setParticles([]), 1500);
+    setTimeout(() => setParticles([]), 2000);
   };
 
-  const handleClick = (index) => {
+  function handleClick(index) {
     if (board[index] || winner || !isPlayerTurn) return;
 
     const newBoard = [...board];
     newBoard[index] = "X";
-    placeSound.current.play();
+    placeSound.play();
     setBoard(newBoard);
     setMessage("Turno IA...");
 
@@ -48,7 +49,7 @@ export default function GamePage() {
       const bestMove = findBestMove(newBoard);
       if (bestMove !== -1) {
         newBoard[bestMove] = "O";
-        placeSound.current.play();
+        placeSound.play();
       }
       setBoard(newBoard);
 
@@ -57,66 +58,84 @@ export default function GamePage() {
 
       setIsPlayerTurn(true);
       setMessage("¡Tu turno!");
-    }, 500);
-  };
+    }, 600);
+  }
 
-  const handleWinner = (w) => {
+  function handleWinner(w) {
     setWinner(w);
     if (w === "X") {
-      setMessage("¡Ganaste!");
-      winSound.current.play();
+      setMessage("¡Ganaste! :)");
+      winSound.play();
       spawnParticles("#00ff00");
     } else if (w === "O") {
-      setMessage("¡Perdiste!");
-      loseSound.current.play();
+      setMessage("¡Perdiste! :(");
+      loseSound.play();
       spawnParticles("#ff0000");
     } else {
-      setMessage("¡Empate!");
-      tieSound.current.play();
+      setMessage("¡Empate! :o");
+      tieSound.play();
       spawnParticles("#ffff00");
     }
-  };
+  }
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen bg-black text-white font-['Press_Start_2P'] overflow-hidden p-4">
+    <div className="relative flex flex-col items-center justify-center min-h-screen bg-black font-['Press_Start_2P'] text-white overflow-hidden p-4">
+
+      {/* Fondo retro animado */}
+      <div className="absolute inset-0 bg-gradient-to-b from-gray-900 to-black">
+        <div className="absolute inset-0 bg-black bg-repeat opacity-20 animate-pulse"></div>
+      </div>
+
+      {/* Mensaje dinámico */}
       <motion.h1
-        className="text-2xl sm:text-3xl md:text-4xl mb-6 z-10 text-center"
+        className={`text-2xl sm:text-3xl md:text-4xl mb-6 z-10 text-center ${
+          winner === "X" ? "text-green-400" :
+          winner === "O" ? "text-red-500" :
+          winner === "Empate" ? "text-yellow-400" : "text-white"
+        }`}
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8 }}
+        transition={{ duration: 0.8, type: "spring", stiffness: 120 }}
       >
         {message}
       </motion.h1>
 
+      {/* Tablero */}
       <div className="grid grid-cols-3 gap-4 sm:gap-6 md:gap-8 z-10">
         {board.map((value, i) => (
           <Square key={i} value={value} onClick={() => handleClick(i)} />
         ))}
       </div>
 
+      {/* Botones al finalizar */}
       {winner && (
         <div className="flex flex-col sm:flex-row gap-4 mt-6 z-10">
           <motion.button
-            className="px-6 py-3 rounded-lg border-2 border-white hover:bg-gray-700"
+            className="px-6 sm:px-8 py-2 sm:py-3 rounded-lg border-2 border-white hover:bg-gray-700 text-white"
             onClick={() => {
               setBoard(initialBoard);
               setWinner(null);
               setIsPlayerTurn(true);
               setMessage("¡Tu turno!");
             }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
           >
             Reiniciar
           </motion.button>
 
           <motion.button
-            className="px-6 py-3 rounded-lg border-2 border-red-500 hover:bg-red-700 text-red-500"
+            className="px-6 sm:px-8 py-2 sm:py-3 rounded-lg border-2 border-red-500 hover:bg-red-700 text-red-500"
             onClick={() => navigate("/")}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
           >
             Salir
           </motion.button>
         </div>
       )}
 
+      {/* Partículas */}
       {particles.map((p) => (
         <motion.div
           key={p.id}
@@ -133,6 +152,10 @@ export default function GamePage() {
           transition={{ duration: 1.5, ease: "easeOut" }}
         />
       ))}
+       {/* el footer se puede decir jaja*/}
+      <p className="absolute bottom-4 text-xs text-gray-400 z-10">
+        © {new Date().getFullYear()} Marco Ugalde. Todos los derechos reservados.
+      </p>
     </div>
   );
 }

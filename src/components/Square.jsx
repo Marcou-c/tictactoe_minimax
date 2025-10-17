@@ -1,216 +1,25 @@
-import React, { useState } from "react";
-import Square from "../components/Square";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
 
-const initialBoard = Array(9).fill(null);
-
-export default function GamePage() {
-  const navigate = useNavigate();
-  const [board, setBoard] = useState(initialBoard);
-  const [isPlayerTurn, setIsPlayerTurn] = useState(true);
-  const [winner, setWinner] = useState(null);
-  const [message, setMessage] = useState("¡Tu turno!");
-  const [particles, setParticles] = useState([]);
-
-  const placeSound = new Audio("/sounds/place.mp3");
-  const winSound = new Audio("/sounds/win.mp3");    // jugador gana
-  const loseSound = new Audio("/sounds/lose.mp3");  // jugador pierde
-  const tieSound = new Audio("/sounds/tie.mp3");
-
-  // Partículas retro estilo arcade
-  const spawnParticles = (color) => {
-    const newParticles = Array.from({ length: 50 }).map(() => ({
-      x: Math.random() * 200 - 100,
-      y: Math.random() * 200 - 100,
-      color,
-      size: Math.random() * 8 + 4,
-      id: Math.random(),
-    }));
-    setParticles(newParticles);
-    setTimeout(() => setParticles([]), 2000);
-  };
-
-  function handleClick(index) {
-    if (board[index] || winner || !isPlayerTurn) return;
-
-    const newBoard = [...board];
-    newBoard[index] = "X";
-    placeSound.play();
-    setBoard(newBoard);
-    setMessage("Turno IA...");
-
-    const check = checkWinner(newBoard);
-    if (check) return handleWinner(check);
-
-    setIsPlayerTurn(false);
-
-    setTimeout(() => {
-      const bestMove = findBestMove(newBoard);
-      if (bestMove !== -1) {
-        newBoard[bestMove] = "O";
-        placeSound.play();
-      }
-      setBoard(newBoard);
-
-      const checkAI = checkWinner(newBoard);
-      if (checkAI) return handleWinner(checkAI);
-
-      setIsPlayerTurn(true);
-      setMessage("¡Tu turno!");
-    }, 600);
-  }
-
-  function handleWinner(w) {
-    setWinner(w);
-    if (w === "X") {
-      setMessage("¡Ganaste! 🎉");
-      winSound.play();
-      spawnParticles("#00ff00");
-    } else if (w === "O") {
-      setMessage("¡Perdiste! 💀");
-      loseSound.play();
-      spawnParticles("#ff0000");
-    } else {
-      setMessage("¡Empate! ⚡");
-      tieSound.play();
-      spawnParticles("#ffff00");
-    }
-  }
-
+export default function Square({ value, onClick }) {
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen bg-black font-['Press_Start_2P'] text-white overflow-hidden p-4">
-
-      {/* Fondo retro animado */}
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-900 to-black">
-        <div className="absolute inset-0 bg-black bg-repeat opacity-20 animate-pulse"></div>
-      </div>
-
-      {/* Mensaje dinámico */}
-      <motion.h1
-        className={`text-2xl sm:text-3xl md:text-4xl mb-6 z-10 text-center ${
-          winner === "X" ? "text-green-400" :
-          winner === "O" ? "text-red-500" :
-          winner === "Empate" ? "text-yellow-400" : "text-white"
-        }`}
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8, type: "spring", stiffness: 120 }}
-      >
-        {message}
-      </motion.h1>
-
-      {/* Tablero */}
-      <div className="grid grid-cols-3 gap-4 sm:gap-6 md:gap-8 z-10">
-        {board.map((value, i) => (
-          <Square key={i} value={value} onClick={() => handleClick(i)} />
-        ))}
-      </div>
-
-      {/* Botones al finalizar */}
-      {winner && (
-        <div className="flex flex-col sm:flex-row gap-4 mt-6 z-10">
-          <motion.button
-            className="px-6 sm:px-8 py-2 sm:py-3 rounded-lg border-2 border-white hover:bg-gray-700 text-white"
-            onClick={() => {
-              setBoard(initialBoard);
-              setWinner(null);
-              setIsPlayerTurn(true);
-              setMessage("¡Tu turno!");
-            }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Reiniciar
-          </motion.button>
-
-          <motion.button
-            className="px-6 sm:px-8 py-2 sm:py-3 rounded-lg border-2 border-red-500 hover:bg-red-700 text-red-500"
-            onClick={() => navigate("/")}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Salir
-          </motion.button>
-        </div>
+    <motion.button
+      onClick={onClick}
+      className="w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 bg-gray-900 border-2 border-gray-700 rounded-lg text-2xl sm:text-4xl md:text-5xl font-bold shadow-lg"
+      whileHover={{ scale: 1.1, boxShadow: "0 0 15px #fff" }}
+      whileTap={{ scale: 0.95 }}
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ type: "spring", stiffness: 300 }}
+    >
+      {value && (
+        <motion.span
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", stiffness: 300 }}
+        >
+          {value}
+        </motion.span>
       )}
-
-      {/* Partículas */}
-      {particles.map((p) => (
-        <motion.div
-          key={p.id}
-          className="absolute rounded-full"
-          style={{
-            backgroundColor: p.color,
-            width: p.size,
-            height: p.size,
-            left: "50%",
-            top: "50%",
-          }}
-          initial={{ x: 0, y: 0, opacity: 1 }}
-          animate={{ x: p.x, y: p.y, opacity: 0 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-        />
-      ))}
-    </div>
+    </motion.button>
   );
-}
-
-// ---------------------- LÓGICA MINIMAX ----------------------
-
-function checkWinner(board) {
-  const lines = [
-    [0, 1, 2], [3, 4, 5], [6, 7, 8],
-    [0, 3, 6], [1, 4, 7], [2, 5, 8],
-    [0, 4, 8], [2, 4, 6]
-  ];
-  for (let [a, b, c] of lines) {
-    if (board[a] && board[a] === board[b] && board[a] === board[c])
-      return board[a];
-  }
-  return board.includes(null) ? null : "Empate";
-}
-
-function findBestMove(board) {
-  let bestScore = -Infinity, move = -1;
-  for (let i = 0; i < 9; i++) {
-    if (!board[i]) {
-      board[i] = "O";
-      const score = minimax(board, 0, false);
-      board[i] = null;
-      if (score > bestScore) { bestScore = score; move = i; }
-    }
-  }
-  return move;
-}
-
-function minimax(board, depth, isMax) {
-  const result = checkWinner(board);
-  if (result !== null) {
-    if (result === "O") return 1;
-    if (result === "X") return -1;
-    return 0;
-  }
-
-  if (isMax) {
-    let bestScore = -Infinity;
-    for (let i = 0; i < 9; i++) {
-      if (!board[i]) {
-        board[i] = "O";
-        bestScore = Math.max(bestScore, minimax(board, depth + 1, false));
-        board[i] = null;
-      }
-    }
-    return bestScore;
-  } else {
-    let bestScore = Infinity;
-    for (let i = 0; i < 9; i++) {
-      if (!board[i]) {
-        board[i] = "X";
-        bestScore = Math.min(bestScore, minimax(board, depth + 1, true));
-        board[i] = null;
-      }
-    }
-    return bestScore;
-  }
 }

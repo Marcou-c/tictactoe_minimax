@@ -1,11 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import devImg from "../assets/dev1.jpeg"; // tu avatar
+import devImg from "../assets/dev1.jpeg";
+import Footer from "../components/Footer"; 
 
 export default function About() {
   const navigate = useNavigate();
 
-  // partículas sutiles en el fondo
   const particles = Array.from({ length: 40 }).map(() => ({
     id: Math.random(),
     x: Math.random() * 100,
@@ -18,17 +18,12 @@ export default function About() {
   return (
     <div className="relative flex flex-col justify-center items-center min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white p-4 font-['Press_Start_2P'] overflow-hidden">
 
-      {/* Partículas retro */}
+      {/* Partículas */}
       {particles.map(p => (
         <motion.div
           key={p.id}
           className="absolute bg-white rounded-full"
-          style={{
-            width: p.size,
-            height: p.size,
-            left: `${p.x}%`,
-            top: `${p.y}%`,
-          }}
+          style={{ width: p.size, height: p.size, left: `${p.x}%`, top: `${p.y}%` }}
           initial={{ opacity: 0 }}
           animate={{ opacity: p.opacity }}
           transition={{ duration: 1, repeat: Infinity, repeatType: "reverse", delay: p.delay }}
@@ -38,8 +33,8 @@ export default function About() {
       {/* Fondo */}
       <div className="absolute inset-0 bg-black bg-repeat opacity-10"></div>
 
-      <motion.div
-        className="relative z-10 max-w-3xl w-full text-center space-y-12"
+      {/* Contenido */}
+      <motion.div className="relative z-10 max-w-5xl w-full text-center space-y-12 px-4"
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -50 }}
@@ -47,43 +42,33 @@ export default function About() {
       >
 
         {/* Sección desarrollador */}
-        <motion.div
-          className="flex flex-col items-center space-y-4"
+        <motion.div className="flex flex-col items-center space-y-4"
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <motion.img
-            src={devImg}
-            alt="Desarrollador"
+          <motion.img src={devImg} alt="Desarrollador"
             className="w-32 h-32 sm:w-40 sm:h-40 md:w-40 md:h-40 rounded-full object-cover shadow-lg"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
+            initial={{ scale: 0 }} animate={{ scale: 1 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           />
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Marco Ugalde 👨‍💻</h1>
-          <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-md">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Marco Ugalde</h1>
+          <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-3xl mx-auto">
             Soy estudiante de ingeniería en sistemas, amante de la música, la fe y el arte.  
             Este proyecto busca combinar un juego clásico con un enfoque profesional, retro y educativo.
           </p>
         </motion.div>
 
-        <motion.hr
-          className="border-gray-600"
-          initial={{ width: 0 }}
-          animate={{ width: "100%" }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-        />
+        <motion.hr className="border-gray-600" initial={{ width: 0 }} animate={{ width: "100%" }} transition={{ duration: 0.8, delay: 0.6 }} />
 
         {/* Sección Minimax */}
-        <motion.div
-          className="space-y-4"
+        <motion.div className="space-y-4"
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
         >
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold">¿Qué es MINI-MAX? 🤖</h2>
-          <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-md mx-auto ">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold">¿Qué es MINI-MAX?</h2>
+          <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-3xl mx-auto">
             El algoritmo <b>MINIMAX</b> es una técnica de inteligencia artificial usada para tomar decisiones óptimas en juegos de dos jugadores.  
             Evalúa recursivamente todos los posibles movimientos futuros, asignando un valor a cada escenario según quién tenga la ventaja.  
             La IA asume que el jugador contrario siempre tomará la mejor decisión posible.  
@@ -91,8 +76,8 @@ export default function About() {
           </p>
         </motion.div>
 
-        <motion.button
-          className="mt-6 px-6 py-3 rounded-xl border-2 border-white text-white hover:bg-gray-700 transition-colors duration-300"
+        {/* Botón volver */}
+        <motion.button className="mt-10 px-6 py-3 rounded-xl border-2 border-white text-white hover:bg-gray-700 transition-colors duration-300"
           onClick={() => navigate("/")}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -104,10 +89,8 @@ export default function About() {
         </motion.button>
       </motion.div>
 
-      {/* el footer se puede decir jaja */}
-      <p className="absolute bottom-4 text-xs sm:text-sm text-gray-400">
-        © {new Date().getFullYear()} Marco Ugalde. Todos los derechos reservados.
-      </p>
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
