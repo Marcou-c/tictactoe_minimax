@@ -42,10 +42,10 @@ export default function HomePage() {
     />
   ))}
 
-  {/* Fondo retro */}
+  {/* Fondo */}
   <div className="absolute inset-0 bg-black bg-repeat opacity-10"></div>
 
-  {/* Contenido centrado */}
+  {/* Menú */}
   <div className="flex flex-col items-center justify-center flex-1 z-10">
     <motion.h1
       className="text-5xl sm:text-6xl mb-16 z-10"
@@ -77,7 +77,6 @@ export default function HomePage() {
     </div>
   </div>
 
-  {/* Footer siempre abajo */}
   <Footer />
 </div>
   );

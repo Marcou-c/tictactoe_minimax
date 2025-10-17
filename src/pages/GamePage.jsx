@@ -83,7 +83,7 @@ export default function GamePage() {
   return (
     <div className="relative flex flex-col justify-between items-center min-h-screen bg-black font-['Press_Start_2P'] text-white p-4">
 
-      {/* Mensaje arriba */}
+      {/* Mensaje */}
       <motion.h1
         className={`text-2xl sm:text-3xl md:text-4xl mt-4 z-10 text-center ${
           winner === "X" ? "text-green-400" :
@@ -97,7 +97,7 @@ export default function GamePage() {
         {message}
       </motion.h1>
 
-      {/* Tablero y botones en el centro */}
+      {/* Tablero y botones */}
       <div className="flex flex-col items-center z-10">
         <div className="grid grid-cols-3 gap-4 sm:gap-6 md:gap-8 mb-6">
           {board.map((value, i) => (
@@ -157,7 +157,6 @@ export default function GamePage() {
         />
       ))}
 
-      {/* Footer abajo */}
       <Footer />
     </div>
   );

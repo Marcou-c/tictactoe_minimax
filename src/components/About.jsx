@@ -89,7 +89,6 @@ export default function About() {
         </motion.button>
       </motion.div>
 
-      {/* Footer */}
       <Footer />
     </div>
   );
