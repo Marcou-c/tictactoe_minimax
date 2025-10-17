@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import Square from "../components/Square";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import Footer from "../components/Footer"; 
+import Footer from "../components/Footer";
+
 const initialBoard = Array(9).fill(null);
 
 export default function GamePage() {
@@ -10,6 +11,7 @@ export default function GamePage() {
   const [board, setBoard] = useState(initialBoard);
   const [isPlayerTurn, setIsPlayerTurn] = useState(true);
   const [winner, setWinner] = useState(null);
+  const [winningLine, setWinningLine] = useState([]);
   const [message, setMessage] = useState("¡Tu turno!");
   const [particles, setParticles] = useState([]);
 
@@ -18,7 +20,6 @@ export default function GamePage() {
   const loseSound = new Audio("/sounds/win.mp3");  
   const tieSound = new Audio("/sounds/tie.mp3");
 
-  // Partículas retro estilo arcade
   const spawnParticles = (color) => {
     const newParticles = Array.from({ length: 50 }).map(() => ({
       x: Math.random() * 200 - 100,
@@ -61,34 +62,30 @@ export default function GamePage() {
     }, 600);
   }
 
-  function handleWinner(w) {
-    setWinner(w);
-    if (w === "X") {
+  function handleWinner({ player, line }) {
+    setWinner(player);
+    setWinningLine(line || []);
+    if (player === "X") {
       setMessage("¡Ganaste! :)");
       winSound.play();
-      spawnParticles("#00ff00");
-    } else if (w === "O") {
+      spawnParticles("#00FF00");
+    } else if (player === "O") {
       setMessage("¡Perdiste! :(");
       loseSound.play();
-      spawnParticles("#ff0000");
+      spawnParticles("#FF0000");
     } else {
       setMessage("¡Empate! :o");
       tieSound.play();
-      spawnParticles("#ffff00");
+      spawnParticles("#00FFFF");
     }
   }
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen bg-black font-['Press_Start_2P'] text-white overflow-hidden p-4">
+    <div className="relative flex flex-col justify-between items-center min-h-screen bg-black font-['Press_Start_2P'] text-white p-4">
 
-      {/* Fondo retro animado */}
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-900 to-black">
-        <div className="absolute inset-0 bg-black bg-repeat opacity-20 animate-pulse"></div>
-      </div>
-
-      {/* Mensaje dinámico */}
+      {/* Mensaje arriba */}
       <motion.h1
-        className={`text-2xl sm:text-3xl md:text-4xl mb-6 z-10 text-center ${
+        className={`text-2xl sm:text-3xl md:text-4xl mt-4 z-10 text-center ${
           winner === "X" ? "text-green-400" :
           winner === "O" ? "text-red-500" :
           winner === "Empate" ? "text-yellow-400" : "text-white"
@@ -100,42 +97,49 @@ export default function GamePage() {
         {message}
       </motion.h1>
 
-      {/* Tablero */}
-      <div className="grid grid-cols-3 gap-4 sm:gap-6 md:gap-8 z-10">
-        {board.map((value, i) => (
-          <Square key={i} value={value} onClick={() => handleClick(i)} />
-        ))}
+      {/* Tablero y botones en el centro */}
+      <div className="flex flex-col items-center z-10">
+        <div className="grid grid-cols-3 gap-4 sm:gap-6 md:gap-8 mb-6">
+          {board.map((value, i) => (
+            <Square
+              key={i}
+              value={value}
+              onClick={() => handleClick(i)}
+              highlight={winningLine.includes(i)}
+            />
+          ))}
+        </div>
+
+        {winner && (
+          <div className="flex flex-col sm:flex-row gap-4 mt-2">
+            <motion.button
+              className="px-6 sm:px-8 py-2 sm:py-3 rounded-lg border-2 border-white hover:bg-gray-700 text-white"
+              onClick={() => {
+                setBoard(initialBoard);
+                setWinner(null);
+                setWinningLine([]);
+                setIsPlayerTurn(true);
+                setMessage("¡Tu turno!");
+              }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Reiniciar
+            </motion.button>
+
+            <motion.button
+              className="px-6 sm:px-8 py-2 sm:py-3 rounded-lg border-2 border-red-500 hover:bg-red-700 text-red-500"
+              onClick={() => navigate("/")}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Salir
+            </motion.button>
+          </div>
+        )}
       </div>
 
-      {/* Botones al finalizar */}
-      {winner && (
-        <div className="flex flex-col sm:flex-row gap-4 mt-6 z-10">
-          <motion.button
-            className="px-6 sm:px-8 py-2 sm:py-3 rounded-lg border-2 border-white hover:bg-gray-700 text-white"
-            onClick={() => {
-              setBoard(initialBoard);
-              setWinner(null);
-              setIsPlayerTurn(true);
-              setMessage("¡Tu turno!");
-            }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Reiniciar
-          </motion.button>
-
-          <motion.button
-            className="px-6 sm:px-8 py-2 sm:py-3 rounded-lg border-2 border-red-500 hover:bg-red-700 text-red-500"
-            onClick={() => navigate("/")}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Salir
-          </motion.button>
-        </div>
-      )}
-
-      {/* Partículas */}
+      {/* Partículas solo al ganar */}
       {particles.map((p) => (
         <motion.div
           key={p.id}
@@ -152,10 +156,9 @@ export default function GamePage() {
           transition={{ duration: 1.5, ease: "easeOut" }}
         />
       ))}
-       {/* el footer se puede decir jaja*/}
-      <p className="absolute bottom-4 text-xs text-gray-400 z-10">
-        © {new Date().getFullYear()} Marco Ugalde. Todos los derechos reservados.
-      </p>
+
+      {/* Footer abajo */}
+      <Footer />
     </div>
   );
 }
@@ -164,15 +167,17 @@ export default function GamePage() {
 
 function checkWinner(board) {
   const lines = [
-    [0, 1, 2], [3, 4, 5], [6, 7, 8],
-    [0, 3, 6], [1, 4, 7], [2, 5, 8],
-    [0, 4, 8], [2, 4, 6]
+    [0,1,2],[3,4,5],[6,7,8],
+    [0,3,6],[1,4,7],[2,5,8],
+    [0,4,8],[2,4,6]
   ];
-  for (let [a, b, c] of lines) {
-    if (board[a] && board[a] === board[b] && board[a] === board[c])
-      return board[a];
+
+  for (let [a,b,c] of lines) {
+    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+      return { player: board[a], line: [a,b,c] };
+    }
   }
-  return board.includes(null) ? null : "Empate";
+  return board.includes(null) ? null : { player: "Empate" };
 }
 
 function findBestMove(board) {
@@ -191,8 +196,8 @@ function findBestMove(board) {
 function minimax(board, depth, isMax) {
   const result = checkWinner(board);
   if (result !== null) {
-    if (result === "O") return 1;
-    if (result === "X") return -1;
+    if (result.player === "O") return 1;
+    if (result.player === "X") return -1;
     return 0;
   }
 
@@ -201,7 +206,7 @@ function minimax(board, depth, isMax) {
     for (let i = 0; i < 9; i++) {
       if (!board[i]) {
         board[i] = "O";
-        bestScore = Math.max(bestScore, minimax(board, depth + 1, false));
+        bestScore = Math.max(bestScore, minimax(board, depth+1, false));
         board[i] = null;
       }
     }
@@ -211,7 +216,7 @@ function minimax(board, depth, isMax) {
     for (let i = 0; i < 9; i++) {
       if (!board[i]) {
         board[i] = "X";
-        bestScore = Math.min(bestScore, minimax(board, depth + 1, true));
+        bestScore = Math.min(bestScore, minimax(board, depth+1, true));
         board[i] = null;
       }
     }
