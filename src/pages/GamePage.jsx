@@ -8,12 +8,26 @@ export default function GamePage() {
   const [board, setBoard] = useState(initialBoard);
   const [isPlayerTurn, setIsPlayerTurn] = useState(true);
   const [winner, setWinner] = useState(null);
-  const [message, setMessage] = useState("Tu turno");
+  const [message, setMessage] = useState("¡Tu turno!");
+  const [particles, setParticles] = useState([]);
 
   const placeSound = new Audio("/sounds/place.mp3");
   const winSound = new Audio("/sounds/win.mp3");
   const loseSound = new Audio("/sounds/lose.mp3");
   const tieSound = new Audio("/sounds/tie.mp3");
+
+  // Crear partículas para victoria/derrota
+  const spawnParticles = (color) => {
+    const newParticles = Array.from({ length: 30 }).map(() => ({
+      x: Math.random() * 100 - 50,
+      y: Math.random() * 100 - 50,
+      color,
+      size: Math.random() * 6 + 4,
+      id: Math.random(),
+    }));
+    setParticles(newParticles);
+    setTimeout(() => setParticles([]), 1500);
+  };
 
   function handleClick(index) {
     if (board[index] || winner || !isPlayerTurn) return;
@@ -22,12 +36,12 @@ export default function GamePage() {
     newBoard[index] = "X";
     placeSound.play();
     setBoard(newBoard);
+    setMessage("Turno IA...");
 
     const check = checkWinner(newBoard);
     if (check) return handleWinner(check);
 
     setIsPlayerTurn(false);
-    setMessage("Turno IA");
 
     setTimeout(() => {
       const bestMove = findBestMove(newBoard);
@@ -41,7 +55,7 @@ export default function GamePage() {
       if (checkAI) return handleWinner(checkAI);
 
       setIsPlayerTurn(true);
-      setMessage("Tu turno");
+      setMessage("¡Tu turno!");
     }, 600);
   }
 
@@ -50,25 +64,29 @@ export default function GamePage() {
     if (w === "X") {
       setMessage("¡Ganaste! 🎉");
       winSound.play();
+      spawnParticles("#00ff00");
     } else if (w === "O") {
       setMessage("¡Perdiste! 😢");
       loseSound.play();
+      spawnParticles("#ff0000");
     } else {
       setMessage("¡Empate! 🤝");
       tieSound.play();
+      spawnParticles("#ffff00");
     }
   }
 
   return (
-    <div className="relative flex flex-col items-center justify-center h-screen bg-black font-['Press_Start_2P'] text-white overflow-hidden">
-      {/* Fondo arcade */}
+    <div className="relative flex flex-col items-center justify-center min-h-screen bg-black font-['Press_Start_2P'] text-white overflow-hidden p-4">
+      
+      {/* Fondo arcade responsive */}
       <div className="absolute inset-0 bg-gradient-to-b from-gray-900 to-black">
         <div className="absolute inset-0 bg-black bg-repeat opacity-20 animate-pulse"></div>
       </div>
 
       {/* Mensaje dinámico */}
       <motion.h1
-        className="text-3xl sm:text-4xl mb-6 z-10"
+        className="text-2xl sm:text-3xl md:text-4xl mb-6 z-10 text-center"
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 1 }}
@@ -76,8 +94,8 @@ export default function GamePage() {
         {message}
       </motion.h1>
 
-      {/* Tablero */}
-      <div className="grid grid-cols-3 gap-6 z-10">
+      {/* Tablero responsive */}
+      <div className="grid grid-cols-3 gap-4 sm:gap-6 md:gap-8 z-10">
         {board.map((value, i) => (
           <Square key={i} value={value} onClick={() => handleClick(i)} />
         ))}
@@ -86,12 +104,12 @@ export default function GamePage() {
       {/* Botón reiniciar */}
       {winner && (
         <motion.button
-          className="mt-6 px-8 py-3 rounded-xl border-2 border-white hover:bg-gray-700 text-white z-10"
+          className="mt-6 px-6 sm:px-8 py-2 sm:py-3 rounded-lg border-2 border-white hover:bg-gray-700 text-white z-10"
           onClick={() => {
             setBoard(initialBoard);
             setWinner(null);
             setIsPlayerTurn(true);
-            setMessage("Tu turno");
+            setMessage("¡Tu turno!");
           }}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
@@ -99,6 +117,24 @@ export default function GamePage() {
           Reiniciar
         </motion.button>
       )}
+
+      {/* Partículas */}
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          className="absolute rounded-full"
+          style={{
+            backgroundColor: p.color,
+            width: p.size,
+            height: p.size,
+            left: "50%",
+            top: "50%",
+          }}
+          initial={{ x: 0, y: 0, opacity: 1 }}
+          animate={{ x: p.x * 5, y: p.y * 5, opacity: 0 }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+        />
+      ))}
     </div>
   );
 }
