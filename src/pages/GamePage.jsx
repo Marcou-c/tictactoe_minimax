@@ -12,8 +12,8 @@ export default function GamePage() {
   const [particles, setParticles] = useState([]);
 
   const placeSound = new Audio("/sounds/place.mp3");
-  const winSound = new Audio("/sounds/win.mp3");
-  const loseSound = new Audio("/sounds/lose.mp3");
+  const winSound = new Audio("/sounds/lose.mp3");
+  const loseSound = new Audio("/sounds/win.mp3");
   const tieSound = new Audio("/sounds/tie.mp3");
 
   // Crear partículas para victoria/derrota
@@ -62,15 +62,15 @@ export default function GamePage() {
   function handleWinner(w) {
     setWinner(w);
     if (w === "X") {
-      setMessage("¡Ganaste! 🎉");
+      setMessage("¡Ganaste! :)");
       winSound.play();
       spawnParticles("#00ff00");
     } else if (w === "O") {
-      setMessage("¡Perdiste! 😢");
+      setMessage("¡Perdiste! :(");
       loseSound.play();
       spawnParticles("#ff0000");
     } else {
-      setMessage("¡Empate! 🤝");
+      setMessage("¡Empateee!");
       tieSound.play();
       spawnParticles("#ffff00");
     }
