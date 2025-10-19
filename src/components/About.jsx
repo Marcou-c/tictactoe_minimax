@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import devImg from "../assets/profile.png";
+import devImg from "../assets/catProfile.png";
 import Footer from "../components/Footer";
 
 export default function About() {
@@ -50,7 +50,7 @@ export default function About() {
           <motion.img
             src={devImg}
             alt="Desarrollador"
-            className="w-32 h-32 sm:w-40 sm:h-40 md:w-36 md:h-36 rounded-full object-contain bg-white shadow-lg p-1"
+            className="w-32 h-32 sm:w-40 sm:h-40 md:w-36 md:h-36 rounded-full object-contain bg-gray-50 shadow-lg p-1"
           />
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Marco Ugalde</h1>
           <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-3xl mx-auto">
